@@ -1,49 +1,80 @@
-import http from 'node:http';
+import express from 'express';
 import fs from 'node:fs';
 import readline from 'node:readline';
 import path from 'node:path';
 
+const app = express();
 const PUERTO = 3000;
-const RUTA_ARCHIVO = path.join(process.cwd(), 'result.txt');
 
-let primeraLineaActual = '';
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
 
-// Función para leer únicamente la primera línea del archivo
-function actualizarPrimeraLinea() {
-  if (!fs.existsSync(RUTA_ARCHIVO)) return;
+function obtenerFechaFormateada() {
+  const ahora = new Date();
 
-  const stream = fs.createReadStream(RUTA_ARCHIVO, { encoding: 'utf-8' });
-  const rl = readline.createInterface({ input: stream });
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const anio = ahora.getFullYear();
 
-  rl.on('line', (linea) => {
-    primeraLineaActual = linea;
-    rl.close();
-    stream.destroy();
+  const horas = String(ahora.getHours()).padStart(2, '0');
+  const minutos = String(ahora.getMinutes()).padStart(2, '0');
+
+  return `${dia}_${mes}_${anio}_${horas}_${minutos}`;
+}
+
+// Función asíncrona que lee SOLO la primera línea garantizada
+function leerPrimeraLinea(rutaArchivo) {
+  return new Promise((resolve) => {
+    if (!fs.existsSync(rutaArchivo)) {
+      return resolve(null);
+    }
+
+    const stream = fs.createReadStream(rutaArchivo, { encoding: 'utf-8' });
+    const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+
+    let primeraLineaLeida = false;
+
+    rl.on('line', (linea) => {
+      if (!primeraLineaLeida) {
+        primeraLineaLeida = true;
+        rl.close();
+        stream.destroy();
+        resolve(linea.trim());
+      }
+    });
+
+    rl.on('error', () => resolve(null));
   });
 }
 
-// Lectura inicial y escucha de cambios
-actualizarPrimeraLinea();
-fs.watch(RUTA_ARCHIVO, (eventType) => {
-  if (eventType === 'change') {
-    actualizarPrimeraLinea();
+// Ruta principal
+app.get('/', async (req, res) => {
+  // Generar la ruta actualizada al minuto exacto de la petición
+  const rutaActual = path.join(process.cwd(), `${obtenerFechaFormateada()}.txt`);
+  const nombreArchivo = path.basename(rutaActual);
+
+  const primeraLinea = await leerPrimeraLinea(rutaActual);
+
+  if (primeraLinea === null) {
+    return res.status(404).json({
+      error: 'Archivo no encontrado',
+      archivoBuscado: nombreArchivo
+    });
   }
+
+  return res.status(200).json({
+    linea: primeraLinea,
+    archivo: nombreArchivo
+  });
 });
 
-// Servidor HTTP con soporte CORS para pruebas locales
-const server = http.createServer((req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'application/json');
-
-  if (req.url === '/') {
-    res.writeHead(200);
-    res.end(JSON.stringify({ linea: primeraLineaActual }));
-  } else {
-    res.writeHead(404);
-    res.end(JSON.stringify({ error: 'Ruta no encontrada' }));
-  }
+// Manejo de rutas no encontradas
+app.use((req, res) => {
+  res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-server.listen(PUERTO, () => {
+app.listen(PUERTO, () => {
   console.log(`Servidor escuchando en http://localhost:${PUERTO}`);
 });
