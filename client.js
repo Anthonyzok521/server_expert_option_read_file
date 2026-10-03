@@ -3,6 +3,17 @@ const comprar = document.querySelector('div[aria-label="at_sell_button"]');
 
 console.log("SCRIPT INSTALADO...");
 
+document.addEventListener("keydown", logKey);
+let key = '';
+function logKey(e) {
+  key = ` ${e.code}`;
+    //console.log(key);
+    if(key.includes('Escape')){
+        console.log("DETENIDO");
+    clearInterval(init);
+    }
+}
+
 async function getData() {
   const url = "http://localhost:3000";
   try {
@@ -14,25 +25,28 @@ async function getData() {
     const result = await response.json();
     console.log(result);
   } catch (error) {
-    console.error(error.error);
+    //console.error(error.error);
   }
 }
 
 async function process(){
-    const result = await getData();
-    if(result.linea == "COMPRAR"){
-        console.log("COMPRAR");
-        comprar.click();
-    }
-    else if(result.linea == "VENDER"){
-        console.log("VENDER");
-        vender.click();
-    }else{
-        console.log("ESPERANDO...");
-        clear();
-    }
+   try{
+        const result = await getData();
+
+        if(result.linea == "COMPRAR"){
+            console.log("COMPRAR");
+            comprar.click();
+        }
+        else if(result.linea == "VENDER"){
+            console.log("VENDER");
+            vender.click();
+        }
+   }catch(e){
+   console.log("ESPERANDO");
+   }
 }
 
-setInterval(() => {
-    process();
+const init = setInterval(() => {
+  process();
 }, 1000);
+

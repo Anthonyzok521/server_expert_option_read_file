@@ -63,7 +63,7 @@ app.get('/', async (req, res) => {
       archivoBuscado: nombreArchivo
     });
   }
-
+    console.log(primeraLinea);
   return res.status(200).json({
     linea: primeraLinea,
     archivo: nombreArchivo
