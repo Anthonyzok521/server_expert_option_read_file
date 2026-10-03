@@ -1,6 +1,8 @@
 const vender = document.querySelector('div[aria-label="at_buy_button"]');
 const comprar = document.querySelector('div[aria-label="at_sell_button"]');
 
+console.log("SCRIPT INSTALADO...");
+
 async function getData() {
   const url = "http://localhost:3000";
   try {
@@ -19,13 +21,18 @@ async function getData() {
 async function process(){
     const result = await getData();
     if(result.linea == "COMPRAR"){
-    comprar.click();
+        console.log("COMPRAR");
+        comprar.click();
     }
     else if(result.linea == "VENDER"){
-    vender.click();
+        console.log("VENDER");
+        vender.click();
+    }else{
+        console.log("ESPERANDO...");
+        clear();
     }
 }
 
-setInterval({
+setInterval(() => {
     process();
 }, 1000);
