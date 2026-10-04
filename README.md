@@ -34,9 +34,7 @@ node server.js
 Abre [ExpertOption](https://app.expertoption.finance/) en Chrome e inicia sesión. Abre la **Consola de Herramientas para Desarrolladores** (`F12` o `Ctrl+Shift+J` / `Cmd+Option+J`) y pega el siguiente código para inyectar el script:
 
 ```javascript
-const script = document.createElement('script');
-script.src = 'http://localhost:3000/client.js?' + new Date().getTime();
-document.body.appendChild(script);
+import('http://localhost:3000/client.js');
 ```
 > **Nota:** Se inyecta de esta manera para evadir los problemas de *Mixed Content* y restricciones de CORS/Módulos del navegador.
 
