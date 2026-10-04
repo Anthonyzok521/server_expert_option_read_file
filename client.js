@@ -54,12 +54,12 @@ async function process(){
            console.log(`ESPERANDO ${tiempo()}`);
                
            }
-           else if(result.linea == "COMPRAR"){
+           else if(result.linea.includes("COMPRAR")){
                useAPI = false;
             console.log("COMPRAR");
             comprar.click();
         }
-        else if(result.linea == "VENDER"){
+        else if(result.linea.includes("VENDER")){
             useAPI = false;
             console.log("VENDER");
             vender.click();
