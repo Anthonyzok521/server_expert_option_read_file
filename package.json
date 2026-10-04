@@ -1,7 +1,7 @@
 {
   "name": "server_expert_option_read_file",
   "version": "1.0.0",
-  "description": "Este proyecto es para leer un archivo en tiempo real que contendr\u00e1 la palabra COMPRAR o VENDER proveniente de una IA que analice la gr\u00e1fica de Expert Option desde el navegador web. En este caso se usa Opus 5.5",
+  "description": "Este proyecto es para leer un archivo en tiempo real que contendrá la palabra COMPRAR o VENDER proveniente de una IA que analice la gráfica de Expert Option desde el navegador web. En este caso se usa Opus 5.5",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/Anthonyzok521/server_expert_option_read_file#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "morgan": "^1.12.1"
   },
   "type": "module"
 }

@@ -1,47 +1,66 @@
-# Servidor De Lectura de Archivo en Tiempo Real
+# Bot de Trading Asistido por IA para ExpertOption 📈
 
-<img src="https://github.com/Anthonyzok521/server_expert_option_read_file/blob/main/Screenshot%202026-10-03%20at%209.11.20%E2%80%AFPM.png" />
+![Demo de Expert Option con IA](./demo_expert_option.png)
 
-Este proyecto es para leer un archivo en tiempo real que contendrá la palabra COMPRAR o VENDER proveniente de una IA que analice la gráfica de Expert Option desde el navegador web. En este caso se usa Opus 5.5
+Este proyecto implementa un sistema para automatizar operaciones en la plataforma **ExpertOption**. Funciona leyendo en tiempo real archivos de texto generados localmente por una IA (como Claude 3.5 Sonnet / Opus) que analiza la gráfica desde el navegador.
 
-# Herramienta
-- Nodejs
-- Claude
-- Chrome
-- Claud Extension
+La IA determina si la mejor acción es **COMPRAR** o **VENDER**, escribe esta palabra clave en un archivo, y el servidor local lo transmite al script del cliente (inyectado en el navegador), el cual realiza el clic automáticamente en la plataforma.
 
-# Tener
-- Cuenta ExpertOption
+---
 
-# Ejecutar
+## 🛠️ Herramientas y Requisitos
+
+Para que este sistema funcione, necesitas lo siguiente:
+
+- **Node.js** (para ejecutar el servidor local).
+- **Google Chrome**.
+- **Extensión de Claude** (o interactuar con Claude u otra IA multimodal que pueda ver la pantalla y escribir archivos en el disco local).
+- **Cuenta Demo o Real en [ExpertOption](https://app.expertoption.finance/)**.
+
+---
+
+## 🚀 Cómo ejecutar el proyecto
+
+### 1. Iniciar el Servidor Local
+El servidor se encargará de buscar un archivo de texto con la fecha y minuto actual (ej. `03_10_2026_17_05.txt`) y enviar su contenido al navegador.
+
+Abre una terminal en la carpeta del proyecto y ejecuta:
+```bash
+npm install   # Instala las dependencias (Express, Cors, Morgan)
 node server.js
+```
 
-# Pegar script dentro de la consola del navegador ExpertOption
-client.js
+### 2. Inyectar el Script Cliente en el Navegador
+Abre [ExpertOption](https://app.expertoption.finance/) en Chrome e inicia sesión. Abre la **Consola de Herramientas para Desarrolladores** (`F12` o `Ctrl+Shift+J` / `Cmd+Option+J`) y pega el siguiente código para inyectar el script:
 
-# Promtear
-https://app.expertoption.finance/ 
-obtener las métricas de trading desde mi cuenta demo que está abierta en el navegador.
+```javascript
+const script = document.createElement('script');
+script.src = 'http://localhost:3000/client.js?' + new Date().getTime();
+document.body.appendChild(script);
+```
+> **Nota:** Se inyecta de esta manera para evadir los problemas de *Mixed Content* y restricciones de CORS/Módulos del navegador.
 
-Analiza la gráfica y toma la mejor desición para comprar/vender cuando lo hayas hecho yo te digo el resultado. Ajusta la moneda que creas conveniente, el tiempo, el cierre, la grafica pero la inversión por ahora es de 1$
+### 3. Controles del Bot en el Navegador
+Una vez inyectado, puedes controlar el bot usando tu teclado en la pestaña de ExpertOption:
+- **`Barra Espaciadora`**: Inicia/reanuda el bot (comienza a hacer peticiones al servidor).
+- **`Escape (Esc)`**: Detiene el bot completamente.
 
-Vamos intentarlo, pero ajusta el tiempo de cierre a algo más extenso como para que tengas una mejor visión y además reduce el zoom de la grafica para que veas bien el historial.
+---
 
-Solo dame una palabra. COMPRAR o VENDER y lo hago.
+## 🤖 Prompts Recomendados para la IA
 
- guarda la respuesta en el .txt por lo menos para tener un historial y así cómo fue mi descición antes de comprar o vender, debido a que con el archivo.txt que yo abra y lea y sea yo físicamente haciendo click sepa esa respuesta fue exitosa o no. Por ejemplo, me mandas COMPRAR - HORA: 5:00pm
+Usa estos comandos (prompts) en tu chat con la IA que está visualizando la gráfica para entrenarla y coordinar las operaciones:
 
-Yo veo el archivo, hago click físicamente a la operación, luego escribo dentro del archivo
+**Prompt Inicial:**
+> "Quiero obtener métricas de trading desde mi cuenta demo que está abierta en el navegador. Analiza la gráfica y toma la mejor decisión para comprar/vender. Ajusta el tiempo de cierre a algo extenso para mejor visión y reduce el zoom de la gráfica. La inversión por ahora es de 1$."
 
-EXITO - HORA 5:01pm
+**Instrucciones de Respuesta y Archivos:**
+> "Solo dame una palabra: 'COMPRAR' o 'VENDER'.
+> Guarda la respuesta en un archivo `.txt` en la carpeta del proyecto. 
+> Los archivos deben llamarse con el nombre de la fecha y hora exacta (ejemplo: `03_10_2026_17_00.txt`)."
 
-y asi.
+**Flujo de Feedback (Retroalimentación):**
+> "Seré rápido. Tú creas el archivo con COMPRAR o VENDER. El sistema leerá el archivo y hará click. Yo solo te responderé con 'SI' o 'NO' en el chat para indicarte si la predicción fue acertada o no. Inmediatamente intentas con otra operación, a menos que explícitamente te pida que nos detengamos."
 
-Los archivos deben llamarse con el nombre de la fecha y hora, por ejemplo
-
-03_10_2026_17_00.txt
-03_10_2026_17_05.txt
-
-.etc.
-
-Seré rápido. Solo dime COMPRAR o VENDER y yo solo te responderé con "SI" o "NO" para indicarte si fue acertada o no y de una vez intentas con otra, a menos que explicitamente te diga que nos detengamos.
+# Autor
+> [Anthonyzok521](https://github.com/Anthonyzok521)

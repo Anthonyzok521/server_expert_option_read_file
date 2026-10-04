@@ -1,4 +1,6 @@
 import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
 import fs from 'node:fs';
 import readline from 'node:readline';
 import path from 'node:path';
@@ -6,10 +8,10 @@ import path from 'node:path';
 const app = express();
 const PUERTO = 3000;
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  next();
-});
+app.use(cors({
+  origin: '*'
+}));
+//app.use(morgan('dev'));
 
 function obtenerFechaFormateada() {
   const ahora = new Date();
@@ -71,6 +73,10 @@ app.get('/', async (req, res) => {
 });
 
 // Manejo de rutas no encontradas
+app.get('/client.js', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'client.js'));
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });

@@ -7,13 +7,24 @@ document.addEventListener("keydown", logKey);
 let key = '';
 let seconds = 60;
 let useAPI = true;
+let action = '';
+let intervalId;
+
 function logKey(e) {
   key = ` ${e.code}`;
-    //console.log(key);
-    if(key.includes('Escape')){
-        console.log("DETENIDO");
-    clearInterval(init);
-    }
+  //console.log(key);
+  if (key.includes('Escape')) {
+    console.log("DETENIDO");
+    clearInterval(intervalId);
+  }
+
+  if (key.includes('Space')) {
+    console.clear();
+    console.log("ESPERANDO");
+    seconds = 60;
+    useAPI = true;
+    init();
+  }
 }
 
 async function getData() {
@@ -21,8 +32,8 @@ async function getData() {
   try {
     const response = await fetch(url);
     const result = await response.json();
-   // console.log(result);
-      return result;
+    //console.log(result);
+    return result;
   } catch (error) {
     console.error(error.error);
   }
@@ -42,40 +53,46 @@ function tiempo() {
   return `${horas}:${minutos}:${segundos}`;
 }
 
-async function process(){
-   try{
-       if(seconds <= 1){
-           useAPI = true;
-           seconds = 60;
-       }
-       if(useAPI == true){
-        const result = await getData();
-           if(result.error){
-           console.log(`ESPERANDO ${tiempo()}`);
-               
-           }
-           else if(result.linea.includes("COMPRAR")){
-               useAPI = false;
-            console.log("COMPRAR");
-            comprar.click();
-        }
-        else if(result.linea.includes("VENDER")){
-            useAPI = false;
-            console.log("VENDER");
-            vender.click();
-        }
-       }
-   }catch(e){
-   console.log(`ERROR - ${e}`);
-   }
+async function process() {
+  try {
+    if (seconds <= 1) {
+      useAPI = true;
+      seconds = 60;
+    }
+    if (useAPI == true) {
+      const result = await getData();
+      if (result.error) {
+        console.clear()
+        console.log(`ESPERANDO ${tiempo()}`);
+      }
+      else if (result.linea.includes("COMPRAR")) {
+        useAPI = false;
+        action = "COMPRAR";
+        console.log("COMPRAR");
+        comprar.click();
+      }
+      else if (result.linea.includes("VENDER")) {
+        useAPI = false;
+        action = "VENDER";
+        console.log("VENDER");
+        vender.click();
+      }
+    }
+  } catch (e) {
+    console.log(`ERROR - ${e}`);
+  }
 }
 
-const init = setInterval(() => {
-  process();
+const init = () => {
+  intervalId = setInterval(() => {
+    process();
 
-    if(!useAPI){
-        seconds--;
-        console.log(`ACCIÓN REALIZADA - ESPERAR ${seconds}s`);
+    if (!useAPI) {
+      console.clear();
+      seconds--;
+      console.log(`ACCIÓN REALIZADA - ${action} - ESPERAR ${seconds}s`);
     }
-}, 1000);
+  }, 1000);
+}
 
+init();
